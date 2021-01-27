@@ -57,5 +57,11 @@ models:
   #     - github.com/99designs/gqlgen/graphql.Int32
   User:
     model: github.com/abuabdillatief/gograph-tutorial/graph/model.User
+    fields:
+      meetups:
+        resolver: true
   Meetup:
     model: github.com/abuabdillatief/gograph-tutorial/graph/model.Meetup
+    fields:
+      user:
+        resolver: true

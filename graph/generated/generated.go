@@ -38,6 +38,7 @@ type ResolverRoot interface {
 	Meetup() MeetupResolver
 	Mutation() MutationResolver
 	Query() QueryResolver
+	User() UserResolver
 }
 
 type DirectiveRoot struct {
@@ -52,7 +53,7 @@ type ComplexityRoot struct {
 	}
 
 	Mutation struct {
-		CreaetMeetup func(childComplexity int, input model.NewMeetup) int
+		CreateMeetup func(childComplexity int, input model.NewMeetup) int
 	}
 
 	Query struct {
@@ -71,10 +72,13 @@ type MeetupResolver interface {
 	User(ctx context.Context, obj *model.Meetup) (*model.User, error)
 }
 type MutationResolver interface {
-	CreaetMeetup(ctx context.Context, input model.NewMeetup) (*model.Meetup, error)
+	CreateMeetup(ctx context.Context, input model.NewMeetup) (*model.Meetup, error)
 }
 type QueryResolver interface {
 	Meetups(ctx context.Context) ([]*model.Meetup, error)
+}
+type UserResolver interface {
+	Meetups(ctx context.Context, obj *model.User) ([]*model.Meetup, error)
 }
 
 type executableSchema struct {
@@ -120,17 +124,17 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Meetup.User(childComplexity), true
 
-	case "Mutation.creaetMeetup":
-		if e.complexity.Mutation.CreaetMeetup == nil {
+	case "Mutation.createMeetup":
+		if e.complexity.Mutation.CreateMeetup == nil {
 			break
 		}
 
-		args, err := ec.field_Mutation_creaetMeetup_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_createMeetup_args(context.TODO(), rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
-		return e.complexity.Mutation.CreaetMeetup(childComplexity, args["input"].(model.NewMeetup)), true
+		return e.complexity.Mutation.CreateMeetup(childComplexity, args["input"].(model.NewMeetup)), true
 
 	case "Query.meetups":
 		if e.complexity.Query.Meetups == nil {
@@ -255,7 +259,7 @@ input NewMeetup {
 }
 
 type Mutation {
-  creaetMeetup(input: NewMeetup!): Meetup!
+  createMeetup(input: NewMeetup!): Meetup!
 }
 `, BuiltIn: false},
 }
@@ -265,7 +269,7 @@ var parsedSchema = gqlparser.MustLoadSchema(sources...)
 
 // region    ***************************** args.gotpl *****************************
 
-func (ec *executionContext) field_Mutation_creaetMeetup_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Mutation_createMeetup_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
 	var arg0 model.NewMeetup
@@ -473,7 +477,7 @@ func (ec *executionContext) _Meetup_user(ctx context.Context, field graphql.Coll
 	return ec.marshalNUser2ᚖgithubᚗcomᚋabuabdillatiefᚋgographᚑtutorialᚋgraphᚋmodelᚐUser(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Mutation_creaetMeetup(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+func (ec *executionContext) _Mutation_createMeetup(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -490,7 +494,7 @@ func (ec *executionContext) _Mutation_creaetMeetup(ctx context.Context, field gr
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	rawArgs := field.ArgumentMap(ec.Variables)
-	args, err := ec.field_Mutation_creaetMeetup_args(ctx, rawArgs)
+	args, err := ec.field_Mutation_createMeetup_args(ctx, rawArgs)
 	if err != nil {
 		ec.Error(ctx, err)
 		return graphql.Null
@@ -498,7 +502,7 @@ func (ec *executionContext) _Mutation_creaetMeetup(ctx context.Context, field gr
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().CreaetMeetup(rctx, args["input"].(model.NewMeetup))
+		return ec.resolvers.Mutation().CreateMeetup(rctx, args["input"].(model.NewMeetup))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -737,14 +741,14 @@ func (ec *executionContext) _User_meetups(ctx context.Context, field graphql.Col
 		Object:     "User",
 		Field:      field,
 		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
+		IsMethod:   true,
+		IsResolver: true,
 	}
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Meetups, nil
+		return ec.resolvers.User().Meetups(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1950,8 +1954,8 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("Mutation")
-		case "creaetMeetup":
-			out.Values[i] = ec._Mutation_creaetMeetup(ctx, field)
+		case "createMeetup":
+			out.Values[i] = ec._Mutation_createMeetup(ctx, field)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
@@ -2024,23 +2028,32 @@ func (ec *executionContext) _User(ctx context.Context, sel ast.SelectionSet, obj
 		case "id":
 			out.Values[i] = ec._User_id(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "username":
 			out.Values[i] = ec._User_username(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "email":
 			out.Values[i] = ec._User_email(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "meetups":
-			out.Values[i] = ec._User_meetups(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._User_meetups(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			})
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}

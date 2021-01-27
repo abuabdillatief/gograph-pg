@@ -22,5 +22,5 @@ input NewMeetup {
 }
 
 type Mutation {
-  creaetMeetup(input: NewMeetup!): Meetup!
+  createMeetup(input: NewMeetup!): Meetup!
 }
