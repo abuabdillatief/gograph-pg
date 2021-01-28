@@ -6,6 +6,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/abuabdillatief/gograph-tutorial/database"
 	"github.com/abuabdillatief/gograph-tutorial/graph/generated"
 	"github.com/abuabdillatief/gograph-tutorial/graph/model"
 )
@@ -25,30 +26,16 @@ var meetups = []*model.Meetup{
 	},
 }
 
-var users = []*model.User{
-	{
-		ID:       "1",
-		Username: "bob",
-		Email:    "bob@gmail.com",
-	},
-	{
-		ID:       "2",
-		Username: "ben",
-		Email:    "ben@gmail.com",
-	},
-}
-
 //Resolver ...
-type Resolver struct{}
+type Resolver struct {
+	MeetupsRepo database.MeetupsRepo
+	UsersRepo   database.UsersRepo
+}
 
 func (r *meetupResolver) User(ctx context.Context, obj *model.Meetup) (*model.User, error) {
-	for _, user := range users {
-		if user.ID == obj.UserID {
-			return user, nil
-		}
-	}
-	return nil, fmt.Errorf("User with id %v not exists", obj.UserID)
+	return r.UsersRepo.GerUserByID(obj.UserID)
 }
+
 
 func (r *userResolver) Meetups(ctx context.Context, obj *model.User) ([]*model.Meetup, error) {
 	var m []*model.Meetup
@@ -60,11 +47,21 @@ func (r *userResolver) Meetups(ctx context.Context, obj *model.User) ([]*model.M
 	return meetups, nil
 }
 func (r *mutationResolver) CreateMeetup(ctx context.Context, input model.NewMeetup) (*model.Meetup, error) {
-	panic("not implemented")
+	if len(input.Name) < 3 {
+		return nil, fmt.Errorf("Name is not long enough!")
+	}
+	if len(input.Description) < 3 {
+		return nil, fmt.Errorf("Description is not long enough!")
+	}
+
+	meetup := &model.Meetup{Name: input.Name,
+		Description: input.Description,
+		UserID:      "1"}
+	return r.MeetupsRepo.CreateMeetup(meetup)
 }
 
 func (r *queryResolver) Meetups(ctx context.Context) ([]*model.Meetup, error) {
-	return meetups, nil
+	return r.MeetupsRepo.GetMeetups()
 }
 
 // Meetup returns generated.MeetupResolver implementation.
