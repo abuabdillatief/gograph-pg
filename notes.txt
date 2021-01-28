@@ -1,3 +1,0 @@
-Definitions:
-    logger: a way or function to save/see logs when querying to DB
-    

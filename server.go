@@ -9,6 +9,7 @@ import (
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/abuabdillatief/gograph-tutorial/database"
 	"github.com/abuabdillatief/gograph-tutorial/graph/generated"
+	"github.com/abuabdillatief/gograph-tutorial/graph/model"
 	"github.com/abuabdillatief/gograph-tutorial/graph/resolvers"
 	"github.com/go-pg/pg/v9"
 )
@@ -32,14 +33,14 @@ func main() {
 	if port == "" {
 		port = defaultPort
 	}
-
-	srv := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{Resolvers: &resolvers.Resolver{
+	config := &generated.Config{Resolvers: &resolvers.Resolver{
 		MeetupsRepo: database.MeetupsRepo{DB: DB},
 		UsersRepo:   database.UsersRepo{DB: DB},
-	}}))
+	}}
+	srv := handler.NewDefaultServer(generated.NewExecutableSchema(*config))
 
 	http.Handle("/", playground.Handler("GraphQL playground", "/query"))
-	http.Handle("/query", srv)
+	http.Handle("/query", model.DataloaderMiddlewareDB(DB, srv))
 
 	log.Printf("connect to http://localhost:%s/ for GraphQL playground", port)
 	log.Fatal(http.ListenAndServe(":"+port, nil))

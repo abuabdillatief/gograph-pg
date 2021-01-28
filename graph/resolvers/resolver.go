@@ -1,11 +1,8 @@
 package resolvers
-
+//go:generate go run github.com/99designs/gqlgen
 // THIS CODE IS A STARTING POINT ONLY. IT WILL NOT BE UPDATED WITH SCHEMA CHANGES.
 
 import (
-	"context"
-	"fmt"
-
 	"github.com/abuabdillatief/gograph-tutorial/database"
 	"github.com/abuabdillatief/gograph-tutorial/graph/generated"
 	"github.com/abuabdillatief/gograph-tutorial/graph/model"
@@ -30,37 +27,6 @@ var meetups = []*model.Meetup{
 type Resolver struct {
 	MeetupsRepo database.MeetupsRepo
 	UsersRepo   database.UsersRepo
-}
-
-func (r *meetupResolver) User(ctx context.Context, obj *model.Meetup) (*model.User, error) {
-	return r.UsersRepo.GerUserByID(obj.UserID)
-}
-
-func (r *userResolver) Meetups(ctx context.Context, obj *model.User) ([]*model.Meetup, error) {
-	var m []*model.Meetup
-	for _, meetup := range meetups {
-		if meetup.UserID == obj.ID {
-			m = append(m, meetup)
-		}
-	}
-	return meetups, nil
-}
-func (r *mutationResolver) CreateMeetup(ctx context.Context, input model.NewMeetup) (*model.Meetup, error) {
-	if len(input.Name) < 3 {
-		return nil, fmt.Errorf("Name is not long enough!")
-	}
-	if len(input.Description) < 3 {
-		return nil, fmt.Errorf("Description is not long enough!")
-	}
-
-	meetup := &model.Meetup{Name: input.Name,
-		Description: input.Description,
-		UserID:      "1"}
-	return r.MeetupsRepo.CreateMeetup(meetup)
-}
-
-func (r *queryResolver) Meetups(ctx context.Context) ([]*model.Meetup, error) {
-	return r.MeetupsRepo.GetMeetups()
 }
 
 // Meetup returns generated.MeetupResolver implementation.
