@@ -5,7 +5,9 @@ go 1.15
 require (
 	github.com/99designs/gqlgen v0.13.0
 	github.com/agnivade/levenshtein v1.1.0 // indirect
+	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/dgryski/trifles v0.0.0-20210119233746-37d926d5de6c // indirect
+	github.com/go-chi/chi v4.1.2+incompatible
 	github.com/go-pg/pg/v9 v9.2.0
 	github.com/golang/protobuf v1.4.3 // indirect
 	github.com/google/go-cmp v0.5.4 // indirect
@@ -16,6 +18,8 @@ require (
 	github.com/nxadm/tail v1.4.6 // indirect
 	github.com/onsi/ginkgo v1.14.2 // indirect
 	github.com/onsi/gomega v1.10.4 // indirect
+	github.com/pkg/errors v0.8.1
+	github.com/rs/cors v1.7.0
 	github.com/segmentio/encoding v0.2.7 // indirect
 	github.com/stretchr/testify v1.7.0 // indirect
 	github.com/vektah/gqlparser/v2 v2.1.0

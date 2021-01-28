@@ -11,5 +11,5 @@ func (r *queryResolver) Meetups(ctx context.Context, filter *model.MeetupFilter,
 }
 
 func (r *queryResolver) User(ctx context.Context, id string) (*model.User, error) {
-	return r.UsersRepo.GerUserByID(id)
+	return r.UsersRepo.GetUserByID(id)
 }

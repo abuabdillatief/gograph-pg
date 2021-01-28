@@ -11,8 +11,12 @@ import (
 	"github.com/abuabdillatief/gograph-tutorial/graph/generated"
 	"github.com/abuabdillatief/gograph-tutorial/graph/model"
 	"github.com/abuabdillatief/gograph-tutorial/graph/resolvers"
+	customMiddleware "github.com/abuabdillatief/gograph-tutorial/middlewares"
+	"github.com/go-chi/chi"
+	"github.com/go-chi/chi/middleware"
 	"github.com/go-pg/pg/v9"
 	"github.com/joho/godotenv"
+	"github.com/rs/cors"
 )
 
 const defaultPort = "8080"
@@ -39,10 +43,24 @@ func main() {
 	if port == "" {
 		port = defaultPort
 	}
+	userRepo := database.UsersRepo{DB: DB}
+	
+	router := chi.NewRouter()
+	router.Use(cors.New(cors.Options{
+		AllowedOrigins:   []string{"http://localhost:8080"},
+		AllowCredentials: true,
+		Debug:            true,
+	}).Handler)
+
+	router.Use(middleware.RequestID)
+	router.Use(middleware.Logger)
+	router.Use(customMiddleware.AuthMiddleware(userRepo))
+
 	config := &generated.Config{
 		Resolvers: &resolvers.Resolver{
 			MeetupsRepo: database.MeetupsRepo{DB: DB},
-			UsersRepo:   database.UsersRepo{DB: DB}},
+			UsersRepo:   userRepo,
+		},
 		/**
 		 * generated.Config takes 3 arguments:
 		 * 		Resovlers
