@@ -7,6 +7,10 @@ type NewMeetup struct {
 	Description string `json:"description"`
 }
 
+type Response struct {
+	Message string `json:"message"`
+}
+
 type UpdateMeetup struct {
 	Name        *string `json:"name"`
 	Description *string `json:"description"`

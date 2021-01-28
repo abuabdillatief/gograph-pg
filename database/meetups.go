@@ -1,6 +1,8 @@
 package database
 
 import (
+	"fmt"
+
 	"github.com/abuabdillatief/gograph-tutorial/graph/model"
 	"github.com/go-pg/pg/v9"
 )
@@ -40,4 +42,12 @@ func (m *MeetupsRepo) CreateMeetup(obj *model.Meetup) (*model.Meetup, error) {
 func (m *MeetupsRepo) Update(obj *model.Meetup) (*model.Meetup, error) {
 	_, err := m.DB.Model(obj).Where("id= ?", obj.ID).Update()
 	return obj, err
+}
+
+//Delete ...
+func (m *MeetupsRepo) Delete(id string) error {
+	var meetup model.Meetup
+	_, err := m.DB.Model(&meetup).Where("id= ?", id).Delete()
+	fmt.Println(err)
+	return err
 }

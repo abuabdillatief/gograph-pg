@@ -51,3 +51,19 @@ func (r *mutationResolver) UpdateMeetup(ctx context.Context, id string, input mo
 	}
 	return meetup, nil
 }
+
+func (r *mutationResolver) DeleteMeetup(ctx context.Context, id string) (*model.Response, error) {
+	var res model.Response
+	meetup, err := r.MeetupsRepo.GetByID(id)
+	if err != nil || meetup == nil {
+		res.Message = fmt.Sprintf("meetup with id %v is not found", id)
+		return &res, nil
+	}
+	err = r.MeetupsRepo.Delete(id)
+	if err != nil {
+		return nil, fmt.Errorf("cant delete object with id %v", id)
+	}
+	res.Message = fmt.Sprintf("meetup with id %v has been deleted", id)
+	return &res, nil
+
+}

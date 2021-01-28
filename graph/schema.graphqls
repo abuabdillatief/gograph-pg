@@ -1,4 +1,4 @@
-# Types
+# TypeDefs
 type User {
   id: ID!
   username: String!
@@ -10,6 +10,9 @@ type Meetup {
   name: String!
   description: String!
   user: User!
+}
+type Response {
+  message: String!
 }
 
 # Input
@@ -32,4 +35,5 @@ type Query {
 type Mutation {
   createMeetup(input: NewMeetup!): Meetup!
   updateMeetup(id: ID!, input: UpdateMeetup!): Meetup!
+  deleteMeetup(id: ID!): Response!
 }
