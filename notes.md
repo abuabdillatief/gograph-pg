@@ -1,23 +1,25 @@
-***DEFINITIONS:***
-- **Logger:** 
-     _a way or function to save/see logs when querying to DB_
-- **Dataloader:** 
-    when we are querying to database, where the query has a child objects,
+# **DEFINITIONS:**
+- ## **Logger:** 
+     A way or function to save/see logs when querying to DB
+- ## **Dataloader:** 
+    wWhen we are querying to database, where the query has a child objects,
     to decrease the amount of request to database, we collect all the related id
     of each child objects, and then we send the request.
 
+    # __The main idea is that, we want to put a middleware before hitting our database server.__
+
     example:
         if we send query:
-            query GetBooks {
-                Books{
-                    id
-                    title
-                    author {
+                 `query GetBooks {
+                    Books{
                         id
-                        name
+                        title
+                        author {
+                            id
+                            name
+                        }
                     }
-                }
-            }
+                }`
         if there is 10 books in our database, the number of queries sent will be 11.
             - 1 to get all books
             - 10 to get each author of corresponding book

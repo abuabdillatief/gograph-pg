@@ -33,10 +33,21 @@ func main() {
 	if port == "" {
 		port = defaultPort
 	}
-	config := &generated.Config{Resolvers: &resolvers.Resolver{
-		MeetupsRepo: database.MeetupsRepo{DB: DB},
-		UsersRepo:   database.UsersRepo{DB: DB},
-	}}
+	config := &generated.Config{
+		Resolvers: &resolvers.Resolver{
+			MeetupsRepo: database.MeetupsRepo{DB: DB},
+			UsersRepo:   database.UsersRepo{DB: DB}},
+		/**
+		 * generated.Config takes 3 arguments:
+		 * 		Resovlers
+		 * 		DirectiveRoot
+		 * 		ComplexityRoot
+		 * those 3 are structs.
+		 * Here we only define resolvers, becauase at the moment
+		 * that's what we're defining
+		 *
+		 */
+	}
 	srv := handler.NewDefaultServer(generated.NewExecutableSchema(*config))
 
 	http.Handle("/", playground.Handler("GraphQL playground", "/query"))
