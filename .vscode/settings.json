@@ -1,0 +1,13 @@
+{
+    "sqltools.connections": [
+        {
+            "previewLimit": 50,
+            "server": "localhost",
+            "port": 5432,
+            "askForPassword": true,
+            "driver": "PostgreSQL",
+            "connectString": "postgres://postgres:postgres@localhost:5432/meetmeup_dev?sslmode=disable",
+            "name": "meetmeup_dev_pg"
+        }
+    ]
+}

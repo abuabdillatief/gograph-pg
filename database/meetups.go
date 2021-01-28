@@ -13,9 +13,21 @@ type MeetupsRepo struct {
 }
 
 //GetMeetups ...
-func (m *MeetupsRepo) GetMeetups() ([]*model.Meetup, error) {
+func (m *MeetupsRepo) GetMeetups(filter *model.MeetupFilter, limit, offset *int) ([]*model.Meetup, error) {
 	var meetups []*model.Meetup
-	err := m.DB.Model(&meetups).Order("id").Select()
+	query := m.DB.Model(&meetups).Order("id")
+	if filter != nil {
+		if filter.Name != nil && *filter.Name != "" {
+			query.Where("name ILIKE ?", fmt.Sprintf("%%%v%%", *filter.Name))
+		}
+	}
+	if limit != nil {
+		query.Limit(*limit)
+	}
+	if offset != nil {
+		query.Offset(*offset)
+	}
+	err := query.Select()
 	if err != nil {
 		return nil, err
 	}
