@@ -24,6 +24,9 @@ func main() {
 
 	defer DB.Close()
 	DB.AddQueryHook(database.DBLogger{})
+	//AddQueryHook requires a type of QueryHook, which is an interface
+	//in package database, we define a struct called DBLogger
+	//in this struct we implement 2 methods, in order to implement the QueryHook interface
 
 	port := os.Getenv("PORT")
 	if port == "" {

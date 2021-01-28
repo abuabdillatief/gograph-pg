@@ -36,7 +36,6 @@ func (r *meetupResolver) User(ctx context.Context, obj *model.Meetup) (*model.Us
 	return r.UsersRepo.GerUserByID(obj.UserID)
 }
 
-
 func (r *userResolver) Meetups(ctx context.Context, obj *model.User) ([]*model.Meetup, error) {
 	var m []*model.Meetup
 	for _, meetup := range meetups {
