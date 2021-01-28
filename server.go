@@ -12,15 +12,21 @@ import (
 	"github.com/abuabdillatief/gograph-tutorial/graph/model"
 	"github.com/abuabdillatief/gograph-tutorial/graph/resolvers"
 	"github.com/go-pg/pg/v9"
+	"github.com/joho/godotenv"
 )
 
 const defaultPort = "8080"
 
 func main() {
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
+
 	DB := database.New(&pg.Options{
-		User:     "postgres",
-		Password: "postgres",
-		Database: "meetmeup_dev",
+		User:     os.Getenv("DB_USER"),
+		Password: os.Getenv("DB_PASS"),
+		Database: os.Getenv("DB_NAME"),
 	})
 
 	defer DB.Close()
