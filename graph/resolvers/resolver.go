@@ -6,23 +6,7 @@ package resolvers
 import (
 	"github.com/abuabdillatief/gograph-tutorial/database"
 	"github.com/abuabdillatief/gograph-tutorial/graph/generated"
-	"github.com/abuabdillatief/gograph-tutorial/graph/model"
 )
-
-var meetups = []*model.Meetup{
-	{
-		ID:          "1",
-		Name:        "A meetup",
-		Description: "A Description",
-		UserID:      "1",
-	},
-	{
-		ID:          "2",
-		Name:        "A second meetup",
-		Description: "A Description",
-		UserID:      "2",
-	},
-}
 
 //Resolver ...
 type Resolver struct {

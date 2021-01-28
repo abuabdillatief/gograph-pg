@@ -22,6 +22,16 @@ func (m *MeetupsRepo) GetMeetups() ([]*model.Meetup, error) {
 	return meetups, err
 }
 
+//GetSelectedMeetups ...
+func (m *MeetupsRepo) GetSelectedMeetups(id string) ([]*model.Meetup, error) {
+	var meetups []*model.Meetup
+	err := m.DB.Model(&meetups).Where("user_id = ?", id).Order("id").Select()
+	if err != nil {
+		return nil, err
+	}
+	return meetups, err
+}
+
 //GetByID ...
 func (m *MeetupsRepo) GetByID(id string) (*model.Meetup, error) {
 	var meetup model.Meetup

@@ -29,6 +29,7 @@ input UpdateMeetup {
 # Query
 type Query {
   meetups: [Meetup!]!
+  user(id: ID!): User!
 }
 
 # Mutation
