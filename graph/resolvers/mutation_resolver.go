@@ -9,11 +9,11 @@ import (
 )
 
 func (r *mutationResolver) CreateMeetup(ctx context.Context, input model.NewMeetupInput) (*model.Meetup, error) {
-	return r.CreateMeetup(ctx, input)
+	return r.Domain.CreateMeetup(ctx, input)
 }
 
 func (r *mutationResolver) UpdateMeetup(ctx context.Context, id string, input model.UpdateMeetupInput) (*model.Meetup, error) {
-	return r.UpdateMeetup(ctx, id, input)
+	return r.Domain.UpdateMeetup(ctx, id, input)
 }
 
 func (r *mutationResolver) DeleteMeetup(ctx context.Context, id string) (*model.Response, error) {
