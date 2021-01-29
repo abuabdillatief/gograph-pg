@@ -6,19 +6,23 @@ import (
 	"fmt"
 
 	"github.com/abuabdillatief/gograph-tutorial/graph/model"
+	"github.com/abuabdillatief/gograph-tutorial/middlewares"
 )
 
 func (r *mutationResolver) CreateMeetup(ctx context.Context, input model.NewMeetupInput) (*model.Meetup, error) {
+	currentUser, err := middlewares.GetCurrentUserFromContext(ctx)
+	if err != nil {
+		return nil, err
+	}
 	if len(input.Name) < 3 {
 		return nil, fmt.Errorf("name is not long enough")
 	}
 	if len(input.Description) < 3 {
 		return nil, fmt.Errorf("description is not long enough")
 	}
-
 	meetup := &model.Meetup{Name: input.Name,
 		Description: input.Description,
-		UserID:      "1"}
+		UserID:      currentUser.ID}
 	return r.MeetupsRepo.CreateMeetup(meetup)
 }
 
@@ -86,12 +90,11 @@ func (r *mutationResolver) Register(ctx context.Context, input model.RegisterInp
 		LastName:  input.LastName,
 	}
 
-	err = user.HashPass((input.Password))
+	err = user.HashPass(input.Password)
 	if err != nil {
 		fmt.Printf("error while hashing password: %v", err)
 		return nil, errors.New("something went wrong")
 	}
-	//TODO send verfication code
 	trx, err := r.UsersRepo.DB.Begin()
 	defer trx.Rollback()
 	if err != nil {
@@ -115,4 +118,26 @@ func (r *mutationResolver) Register(ctx context.Context, input model.RegisterInp
 		AuthToken: token,
 		User:      user,
 	}, nil
+}
+
+//Login ...
+func (r *mutationResolver) Login(ctx context.Context, input model.LoginInput) (*model.AuthResponse, error) {
+	user, err := r.UsersRepo.GetUserByEmail(input.Email)
+	if err != nil {
+		return nil, errors.New("email or password is invalid")
+	}
+	err = user.ComparePass(input.Password)
+	if err != nil {
+		return nil, errors.New("email or password is invalid")
+	}
+	token, err := user.GenereateToken()
+	if err != nil {
+		fmt.Printf("error while generating token: %v", err)
+		return nil, errors.New("something went wrong")
+	}
+	return &model.AuthResponse{
+		AuthToken: token,
+		User:      user,
+	}, nil
+
 }

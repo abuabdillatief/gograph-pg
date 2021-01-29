@@ -72,12 +72,12 @@ func main() {
 	}
 	server := handler.NewDefaultServer(generated.NewExecutableSchema(*config))
 
-	http.Handle("/", playground.Handler("GraphQL playground", "/query"))
-	http.Handle("/query", model.DataloaderMiddlewareDB(DB, server))
+	router.Handle("/", playground.Handler("GraphQL playground", "/query"))
+	router.Handle("/query", model.DataloaderMiddlewareDB(DB, server))
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = defaultPort
 	}
 	log.Printf("connect to http://localhost:%s/ for GraphQL playground", port)
-	log.Fatal(http.ListenAndServe(":"+port, nil))
+	log.Fatal(http.ListenAndServe(":"+port, router))
 }

@@ -56,6 +56,11 @@ input RegisterInput {
   lastName: String!
 }
 
+input LoginInput {
+  email: String!
+  password: String!
+}
+
 # Query
 type Query {
   meetups(
@@ -69,6 +74,7 @@ type Query {
 # Mutation
 type Mutation {
   register(input: RegisterInput!): AuthResponse!
+  login(input: LoginInput!): AuthResponse!
   createMeetup(input: NewMeetupInput!): Meetup!
   updateMeetup(id: ID!, input: UpdateMeetupInput!): Meetup!
   deleteMeetup(id: ID!): Response!

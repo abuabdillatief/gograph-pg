@@ -48,5 +48,13 @@ func (u *User) GenereateToken() (*AuthToken, error) {
 		AccessToken: accessToken,
 		ExpiredAt:   expiredAt,
 	}, nil
+}
 
+//ComparePass ...
+func (u *User) ComparePass(password string) error {
+	err := bcrypt.CompareHashAndPassword([]byte(u.Password), []byte(password))
+	if err != nil {
+		return err
+	}
+	return nil
 }

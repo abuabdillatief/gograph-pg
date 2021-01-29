@@ -9,7 +9,7 @@ import (
 	"github.com/abuabdillatief/gograph-tutorial/database"
 	"github.com/abuabdillatief/gograph-tutorial/graph/model"
 	"github.com/dgrijalva/jwt-go"
-	"github.com/dgrijalva/jwt-go/request"
+	jwtRequest "github.com/dgrijalva/jwt-go/request"
 	"github.com/pkg/errors"
 )
 
@@ -19,8 +19,18 @@ type CurrentUserType string
 //CurrentUser ...
 const CurrentUser = CurrentUserType("currentUser")
 
+var authHeaderExtractor = &jwtRequest.PostExtractionFilter{
+	Extractor: jwtRequest.HeaderExtractor{"Authorization"},
+	Filter:    bearerPrefixFromToken,
+}
+
+var authExtractor = &jwtRequest.MultiExtractor{
+	authHeaderExtractor,
+	jwtRequest.ArgumentExtractor{"access_token"},
+}
+
 //AuthMiddleware ...
-func AuthMiddleware(repo database.UsersRepo) func(http.Handler) http.Handler {
+func AuthMiddleware(DB database.UsersRepo) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			token, err := parseToken(r)
@@ -37,7 +47,7 @@ func AuthMiddleware(repo database.UsersRepo) func(http.Handler) http.Handler {
 				next.ServeHTTP(w, r)
 				return
 			}
-			user, err := repo.GetUserByID(claims["jti"].(string))
+			user, err := DB.GetUserByID(claims["jti"].(string))
 			if err != nil {
 				next.ServeHTTP(w, r)
 				return
@@ -48,18 +58,21 @@ func AuthMiddleware(repo database.UsersRepo) func(http.Handler) http.Handler {
 	}
 }
 
-var authHeaderExtractor = &request.PostExtractionFilter{
-	Extractor: request.HeaderExtractor{"Authorization"},
-	Filter:    bearerPrefixFromToken,
-}
-
-var authExtractor = &request.MultiExtractor{
-	authHeaderExtractor,
-	request.ArgumentExtractor{"access_token"},
+//GetCurrentUserFromContext ...
+func GetCurrentUserFromContext(ctx context.Context) (*model.User, error) {
+	noUserError := errors.New("There's no user in context")
+	if ctx.Value(CurrentUser) == nil {
+		return nil, noUserError
+	}
+	user, ok := ctx.Value(CurrentUser).(*model.User)
+	if !ok || user.ID == "" {
+		return nil, noUserError
+	}
+	return user, nil
 }
 
 func parseToken(r *http.Request) (*jwt.Token, error) {
-	parsed, err := request.ParseFromRequest(r, authExtractor, func(token *jwt.Token) (i interface{}, err error) {
+	parsed, err := jwtRequest.ParseFromRequest(r, authExtractor, func(token *jwt.Token) (i interface{}, err error) {
 		t := []byte(os.Getenv("JWT_SECRET"))
 		return t, nil
 	})
@@ -75,18 +88,4 @@ func bearerPrefixFromToken(token string) (string, error) {
 		return token[len(bearer)+1:], nil
 	}
 	return token, nil
-
-}
-
-//GetCurrentUserFromContext ...
-func GetCurrentUserFromContext(ctx context.Context) (*model.User, error) {
-	noUserError := errors.New("no user in context")
-	if ctx.Value(CurrentUser) == nil {
-		return nil, noUserError
-	}
-	user, ok := ctx.Value(CurrentUser).(*model.User)
-	if !ok || user.ID == "" {
-		return nil, noUserError
-	}
-	return user, nil
 }
