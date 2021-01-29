@@ -2,7 +2,6 @@ package domain
 
 import (
 	"github.com/abuabdillatief/gograph-tutorial/database"
-	"github.com/abuabdillatief/gograph-tutorial/graph/model"
 )
 
 //Domain ...
@@ -18,13 +17,4 @@ func NewDomain(usersRepo database.UsersRepo, meetupsRepo database.MeetupsRepo) *
 		UsersRepo:   usersRepo,
 		MeetupsRepo: meetupsRepo,
 	}
-}
-
-//Owner ...
-type Owner interface {
-	HasRight(user *model.User) bool
-}
-
-func checkOwnership(o Owner, u *model.User) bool {
-	return o.HasRight(u)
 }

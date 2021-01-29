@@ -8,6 +8,3 @@ type Meetup struct {
 	UserID      string `json:"user_id"`
 }
 
-func (m *Meetup) HasRight(u *User) bool {
-	return m.UserID == u.ID
-}

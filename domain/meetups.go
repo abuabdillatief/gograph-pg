@@ -39,7 +39,7 @@ func (d *Domain) UpdateMeetup(ctx context.Context, id string, input model.Update
 	if err != nil {
 		return nil, errors.New("user is not authenticated")
 	}
-	if !meetup.HasRight(currentUser) {
+	if !currentUser.HasRight(meetup) {
 		return nil, errors.New("user is not authenticated")
 	}
 
@@ -80,7 +80,7 @@ func (d *Domain) DeleteMeetup(ctx context.Context, id string) (*model.Response, 
 		res.Message = fmt.Sprintf("meetup with id %s is not found", id)
 		return &res, nil
 	}
-	if !meetup.HasRight(currentUser) {
+	if !currentUser.HasRight(meetup) {
 		return nil, errors.New("user is not authenticated")
 	}
 	err = d.MeetupsRepo.Delete(id)

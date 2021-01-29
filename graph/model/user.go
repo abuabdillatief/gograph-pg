@@ -58,3 +58,8 @@ func (u *User) ComparePass(password string) error {
 	}
 	return nil
 }
+
+//HasRight ...
+func (u *User) HasRight(m *Meetup) bool {
+	return u.ID == m.UserID
+}
