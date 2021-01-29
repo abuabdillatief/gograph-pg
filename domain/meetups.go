@@ -2,6 +2,7 @@ package domain
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"github.com/abuabdillatief/gograph-tutorial/graph/model"
@@ -28,11 +29,20 @@ func (d *Domain) CreateMeetup(ctx context.Context, input model.NewMeetupInput) (
 
 //UpdateMeetup ...
 func (d *Domain) UpdateMeetup(ctx context.Context, id string, input model.UpdateMeetupInput) (*model.Meetup, error) {
+	updated := false
 	meetup, err := d.MeetupsRepo.GetByID(id)
 	if err != nil || meetup == nil {
 		return nil, fmt.Errorf("meetup no exist")
 	}
-	updated := false
+
+	currentUser, err := middlewares.GetCurrentUserFromContext(ctx)
+	if err != nil {
+		return nil, errors.New("user is not authenticated")
+	}
+	if !meetup.HasRight(currentUser) {
+		return nil, errors.New("user is not authenticated")
+	}
+
 	if input.Name != nil {
 		if len(*input.Name) < 3 {
 			return nil, fmt.Errorf("name is not long enough")
@@ -53,7 +63,7 @@ func (d *Domain) UpdateMeetup(ctx context.Context, id string, input model.Update
 	}
 	meetup, err = d.MeetupsRepo.Update(meetup)
 	if err != nil {
-		return nil, fmt.Errorf("error while updating meetup object: %v", err)
+		return nil, fmt.Errorf("error while updating meetup object: %s", err)
 	}
 	return meetup, nil
 }
@@ -61,16 +71,23 @@ func (d *Domain) UpdateMeetup(ctx context.Context, id string, input model.Update
 //DeleteMeetup ...
 func (d *Domain) DeleteMeetup(ctx context.Context, id string) (*model.Response, error) {
 	var res model.Response
+	currentUser, err := middlewares.GetCurrentUserFromContext(ctx)
+	if err != nil {
+		return nil, errors.New("user is not authenticated")
+	}
 	meetup, err := d.MeetupsRepo.GetByID(id)
 	if err != nil || meetup == nil {
-		res.Message = fmt.Sprintf("meetup with id %v is not found", id)
+		res.Message = fmt.Sprintf("meetup with id %s is not found", id)
 		return &res, nil
+	}
+	if !meetup.HasRight(currentUser) {
+		return nil, errors.New("user is not authenticated")
 	}
 	err = d.MeetupsRepo.Delete(id)
 	if err != nil {
-		return nil, fmt.Errorf("cant delete object with id %v", id)
+		return nil, fmt.Errorf("cant delete object with id %s", id)
 	}
-	res.Message = fmt.Sprintf("meetup with id %v has been deleted", id)
+	res.Message = fmt.Sprintf("meetup with id %s has been deleted", id)
 	return &res, nil
 
 }

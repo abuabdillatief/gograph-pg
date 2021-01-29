@@ -15,7 +15,7 @@ type UsersRepo struct {
 //GetUserByField ...
 func (u *UsersRepo) GetUserByField(field, value string) (*model.User, error) {
 	var user model.User
-	err := u.DB.Model(&user).Where(fmt.Sprintf("%v = ?", field), value).First()
+	err := u.DB.Model(&user).Where(fmt.Sprintf("%s = ?", field), value).First()
 	return &user, err
 }
 

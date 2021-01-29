@@ -28,26 +28,26 @@ func (d *Domain) Register(ctx context.Context, input model.RegisterInput) (*mode
 
 	err = user.HashPass(input.Password)
 	if err != nil {
-		fmt.Printf("error while hashing password: %v", err)
+		fmt.Printf("error while hashing password: %s", err)
 		return nil, errors.New("something went wrong")
 	}
 	trx, err := d.UsersRepo.DB.Begin()
 	defer trx.Rollback()
 	if err != nil {
-		fmt.Printf("error creating a transaction: %v", err)
+		fmt.Printf("error creating a transaction: %s", err)
 		return nil, errors.New("something went wrong during DB Trx")
 	}
 	if _, err := d.UsersRepo.CreateUser(trx, user); err != nil {
-		fmt.Printf("error creating a user: %v", err)
+		fmt.Printf("error creating a user: %s", err)
 		return nil, err
 	}
 	if err = trx.Commit(); err != nil {
-		fmt.Printf("error while committing trx: %v", err)
+		fmt.Printf("error while committing trx: %s", err)
 		return nil, err
 	}
 	token, err := user.GenereateToken()
 	if err != nil {
-		fmt.Printf("error while generating token: %v", err)
+		fmt.Printf("error while generating token: %s", err)
 		return nil, errors.New("something went wrong")
 	}
 	return &model.AuthResponse{
@@ -68,7 +68,7 @@ func (d *Domain) Login(ctx context.Context, input model.LoginInput) (*model.Auth
 	}
 	token, err := user.GenereateToken()
 	if err != nil {
-		fmt.Printf("error while generating token: %v", err)
+		fmt.Printf("error while generating token: %s", err)
 		return nil, errors.New("something went wrong")
 	}
 	return &model.AuthResponse{
