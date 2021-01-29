@@ -22,6 +22,7 @@ require (
 	github.com/rs/cors v1.7.0
 	github.com/segmentio/encoding v0.2.7 // indirect
 	github.com/stretchr/testify v1.7.0 // indirect
+	github.com/vektah/gqlparser v1.3.1
 	github.com/vektah/gqlparser/v2 v2.1.0
 	github.com/vmihailenco/tagparser v0.1.2 // indirect
 	golang.org/x/crypto v0.0.0-20201221181555-eec23a3978ad
