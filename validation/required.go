@@ -1,4 +1,4 @@
-package validator
+package validation
 
 import (
 	"fmt"
@@ -6,7 +6,7 @@ import (
 )
 
 //IsEmpty ...
-func (v *Validator) IsEmpty(value interface{}) bool {
+func (v *Validation) IsEmpty(value interface{}) bool {
 	t := reflect.ValueOf(value)
 	switch t.Kind() {
 	case reflect.String, reflect.Array, reflect.Slice, reflect.Map, reflect.Chan:
@@ -15,8 +15,8 @@ func (v *Validator) IsEmpty(value interface{}) bool {
 	return false
 }
 
-//Required ...
-func (v *Validator) Required(field string, value interface{}) bool {
+//IsRequired ...
+func (v *Validation) IsRequired(field string, value interface{}) bool {
 	if _, notOK := v.Errors[field]; notOK {
 		return false
 	}

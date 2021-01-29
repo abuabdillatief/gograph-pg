@@ -4,14 +4,15 @@ import (
 	"context"
 
 	"github.com/99designs/gqlgen/graphql"
-	"github.com/abuabdillatief/gograph-tutorial/validator"
+	customValidation "github.com/abuabdillatief/gograph-tutorial/validation"
 	"github.com/vektah/gqlparser/gqlerror"
 )
 
-func validation(ctx context.Context, v validator.Validation) bool {
-	isValid, err := v.Validate()
+//ValidationChecker ...
+func ValidationChecker(ctx context.Context, validator customValidation.Validator) bool {
+	isValid, errors := validator.Validate()
 	if !isValid {
-		for key, err := range err {
+		for key, err := range errors {
 			graphql.AddError(ctx, &gqlerror.Error{
 				Message: err,
 				Extensions: map[string]interface{}{
@@ -22,4 +23,3 @@ func validation(ctx context.Context, v validator.Validation) bool {
 	}
 	return isValid
 }
- 

@@ -1,11 +1,11 @@
-package validator
+package validation
 
 import "regexp"
 
 var emailRegex = regexp.MustCompile("^[a-zA-Z0-9.!#$%&'*+\\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$")
 
 //IsEmail ...
-func (v *Validator) IsEmail(field, email string) bool {
+func (v *Validation) IsEmail(field, email string) bool {
 	if _, notOK := v.Errors[field]; notOK {
 		return false
 	}

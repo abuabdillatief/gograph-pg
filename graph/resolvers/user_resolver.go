@@ -7,5 +7,5 @@ import (
 )
 
 func (r *userResolver) Meetups(ctx context.Context, obj *model.User) ([]*model.Meetup, error) {
-	return r.MeetupsRepo.GetSelectedMeetups(obj.ID)
+	return r.Domain.MeetupsRepo.GetSelectedMeetups(obj.ID)
 }

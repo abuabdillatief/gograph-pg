@@ -8,6 +8,7 @@ import (
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/abuabdillatief/gograph-tutorial/database"
+	"github.com/abuabdillatief/gograph-tutorial/domain"
 	"github.com/abuabdillatief/gograph-tutorial/graph/generated"
 	"github.com/abuabdillatief/gograph-tutorial/graph/model"
 	"github.com/abuabdillatief/gograph-tutorial/graph/resolvers"
@@ -53,11 +54,10 @@ func main() {
 	router.Use(middleware.RequestID)
 	router.Use(middleware.Logger)
 	router.Use(customMiddleware.AuthMiddleware(*userDB))
-
+	d := domain.NewDomain(*userDB, *meetupDB)
 	config := &generated.Config{
 		Resolvers: &resolvers.Resolver{
-			MeetupsRepo: *meetupDB,
-			UsersRepo:   *userDB,
+			Domain: d,
 		},
 		/**
 		 * generated.Config takes 3 arguments:

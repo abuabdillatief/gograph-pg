@@ -1,9 +1,9 @@
-package validator
+package validation
 
 import "fmt"
 
 //MinLength ...
-func (v *Validator) MinLength(field, value string, minChar int) bool {
+func (v *Validation) MinLength(field, value string, minChar int) bool {
 	if _, notOK := v.Errors[field]; notOK {
 		return false
 	}

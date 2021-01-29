@@ -1,9 +1,9 @@
-package validator
+package validation
 
 import "fmt"
 
 //EqualToField ...
-func (v *Validator) EqualToField(field, toEqualField string, value, toEqualValue interface{}) bool {
+func (v *Validation) EqualToField(field, toEqualField string, value, toEqualValue interface{}) bool {
 	if _, notOK := v.Errors[field]; notOK {
 		return false
 	}

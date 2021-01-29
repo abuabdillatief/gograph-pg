@@ -4,14 +4,13 @@ package resolvers
 // THIS CODE IS A STARTING POINT ONLY. IT WILL NOT BE UPDATED WITH SCHEMA CHANGES.
 
 import (
-	"github.com/abuabdillatief/gograph-tutorial/database"
+	"github.com/abuabdillatief/gograph-tutorial/domain"
 	"github.com/abuabdillatief/gograph-tutorial/graph/generated"
 )
 
 //Resolver ...
 type Resolver struct {
-	MeetupsRepo database.MeetupsRepo
-	UsersRepo   database.UsersRepo
+	Domain *domain.Domain
 }
 
 // Meetup returns generated.MeetupResolver implementation.
