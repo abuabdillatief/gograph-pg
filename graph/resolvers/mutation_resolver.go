@@ -2,12 +2,13 @@ package resolvers
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"github.com/abuabdillatief/gograph-tutorial/graph/model"
 )
 
-func (r *mutationResolver) CreateMeetup(ctx context.Context, input model.NewMeetup) (*model.Meetup, error) {
+func (r *mutationResolver) CreateMeetup(ctx context.Context, input model.NewMeetupInput) (*model.Meetup, error) {
 	if len(input.Name) < 3 {
 		return nil, fmt.Errorf("name is not long enough")
 	}
@@ -21,7 +22,7 @@ func (r *mutationResolver) CreateMeetup(ctx context.Context, input model.NewMeet
 	return r.MeetupsRepo.CreateMeetup(meetup)
 }
 
-func (r *mutationResolver) UpdateMeetup(ctx context.Context, id string, input model.UpdateMeetup) (*model.Meetup, error) {
+func (r *mutationResolver) UpdateMeetup(ctx context.Context, id string, input model.UpdateMeetupInput) (*model.Meetup, error) {
 	meetup, err := r.MeetupsRepo.GetByID(id)
 	if err != nil || meetup == nil {
 		return nil, fmt.Errorf("meetup no exist")
@@ -66,4 +67,52 @@ func (r *mutationResolver) DeleteMeetup(ctx context.Context, id string) (*model.
 	res.Message = fmt.Sprintf("meetup with id %v has been deleted", id)
 	return &res, nil
 
+}
+
+func (r *mutationResolver) Register(ctx context.Context, input model.RegisterInput) (*model.AuthResponse, error) {
+	_, err := r.UsersRepo.GetUserByEmail(input.Email)
+	//we are expecting errors, as it shows that user doesn't exist
+	if err == nil {
+		return nil, errors.New("email is already in used")
+	}
+	_, err = r.UsersRepo.GetUserByUsername(input.Username)
+	if err == nil {
+		return nil, errors.New("username is already in used")
+	}
+	user := &model.User{
+		Username:  input.Username,
+		Email:     input.Email,
+		FirstName: input.FirstName,
+		LastName:  input.LastName,
+	}
+
+	err = user.HashPass((input.Password))
+	if err != nil {
+		fmt.Printf("error while hashing password: %v", err)
+		return nil, errors.New("something went wrong")
+	}
+	//TODO send verfication code
+	trx, err := r.UsersRepo.DB.Begin()
+	defer trx.Rollback()
+	if err != nil {
+		fmt.Printf("error creating a transaction: %v", err)
+		return nil, errors.New("something went wrong during DB Trx")
+	}
+	if _, err := r.UsersRepo.CreateUser(trx, user); err != nil {
+		fmt.Printf("error creating a user: %v", err)
+		return nil, err
+	}
+	if err = trx.Commit(); err != nil {
+		fmt.Printf("error while committing trx: %v", err)
+		return nil, err
+	}
+	token, err := user.GenereateToken()
+	if err != nil {
+		fmt.Printf("error while generating token: %v", err)
+		return nil, errors.New("something went wrong")
+	}
+	return &model.AuthResponse{
+		AuthToken: token,
+		User:      user,
+	}, nil
 }

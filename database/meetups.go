@@ -13,7 +13,7 @@ type MeetupsRepo struct {
 }
 
 //GetMeetups ...
-func (m *MeetupsRepo) GetMeetups(filter *model.MeetupFilter, limit, offset *int) ([]*model.Meetup, error) {
+func (m *MeetupsRepo) GetMeetups(filter *model.MeetupFilterInput, limit, offset *int) ([]*model.Meetup, error) {
 	var meetups []*model.Meetup
 	query := m.DB.Model(&meetups).Order("id")
 	if filter != nil {

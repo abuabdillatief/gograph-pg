@@ -21,30 +21,28 @@ import (
 
 const defaultPort = "8080"
 
-func main() {
+func init() {
 	err := godotenv.Load()
 	if err != nil {
 		log.Fatal("Error loading .env file")
 	}
+}
 
+func main() {
 	DB := database.New(&pg.Options{
 		User:     os.Getenv("DB_USER"),
 		Password: os.Getenv("DB_PASS"),
 		Database: os.Getenv("DB_NAME"),
 	})
-
 	defer DB.Close()
-	DB.AddQueryHook(database.DBLogger{})
+	//AddQueryHook adds a hook into query processing
 	//AddQueryHook requires a type of QueryHook, which is an interface
 	//in package database, we define a struct called DBLogger
-	//in this struct we implement 2 methods, in order to implement the QueryHook interface
+	//then, in this struct we implement 2 methods in order to implement the QueryHook interface
+	DB.AddQueryHook(database.DBLogger{})
+	userDB := &database.UsersRepo{DB: DB}
+	meetupDB := &database.MeetupsRepo{DB: DB}
 
-	port := os.Getenv("PORT")
-	if port == "" {
-		port = defaultPort
-	}
-	userRepo := database.UsersRepo{DB: DB}
-	
 	router := chi.NewRouter()
 	router.Use(cors.New(cors.Options{
 		AllowedOrigins:   []string{"http://localhost:8080"},
@@ -54,12 +52,12 @@ func main() {
 
 	router.Use(middleware.RequestID)
 	router.Use(middleware.Logger)
-	router.Use(customMiddleware.AuthMiddleware(userRepo))
+	router.Use(customMiddleware.AuthMiddleware(*userDB))
 
 	config := &generated.Config{
 		Resolvers: &resolvers.Resolver{
-			MeetupsRepo: database.MeetupsRepo{DB: DB},
-			UsersRepo:   userRepo,
+			MeetupsRepo: *meetupDB,
+			UsersRepo:   *userDB,
 		},
 		/**
 		 * generated.Config takes 3 arguments:
@@ -72,11 +70,14 @@ func main() {
 		 *
 		 */
 	}
-	srv := handler.NewDefaultServer(generated.NewExecutableSchema(*config))
+	server := handler.NewDefaultServer(generated.NewExecutableSchema(*config))
 
 	http.Handle("/", playground.Handler("GraphQL playground", "/query"))
-	http.Handle("/query", model.DataloaderMiddlewareDB(DB, srv))
-
+	http.Handle("/query", model.DataloaderMiddlewareDB(DB, server))
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = defaultPort
+	}
 	log.Printf("connect to http://localhost:%s/ for GraphQL playground", port)
 	log.Fatal(http.ListenAndServe(":"+port, nil))
 }

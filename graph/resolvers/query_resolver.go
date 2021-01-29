@@ -6,7 +6,7 @@ import (
 	"github.com/abuabdillatief/gograph-tutorial/graph/model"
 )
 
-func (r *queryResolver) Meetups(ctx context.Context, filter *model.MeetupFilter, limit *int, offset *int) ([]*model.Meetup, error) {
+func (r *queryResolver) Meetups(ctx context.Context, filter *model.MeetupFilterInput, limit *int, offset *int) ([]*model.Meetup, error) {
 	return r.MeetupsRepo.GetMeetups(filter, limit, offset)
 }
 

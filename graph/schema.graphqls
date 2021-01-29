@@ -1,10 +1,17 @@
+scalar Time
+
 # TypeDefs
 type User {
   id: ID!
   username: String!
+  firstName: String!
+  lastName: String!
   email: String!
   meetups: [Meetup!]!
+  createdAt: Time!
+  updatedAt: Time!
 }
+
 type Meetup {
   id: ID!
   name: String!
@@ -15,30 +22,54 @@ type Response {
   message: String!
 }
 
+type AuthToken {
+  accessToken: String!
+  expiredAt: Time!
+}
+
+type AuthResponse {
+  authToken: AuthToken!
+  user: User!
+}
+#==========================================================
 # Input
-input MeetupFilter {
+input MeetupFilterInput {
   name: String
 }
 
-input NewMeetup {
+input NewMeetupInput {
   name: String!
   description: String!
 }
 
-input UpdateMeetup {
+input UpdateMeetupInput {
   name: String
   description: String
 }
 
-# Query
-type Query {
-  meetups(filter: MeetupFilter, limit: Int = 10, offset: Int = 0): [Meetup!]!
-  user(id: ID!): User!
+input RegisterInput {
+  username: String!
+  email: String!
+  password: String!
+  confirmPassword: String!
+  firstName: String!
+  lastName: String!
 }
 
+# Query
+type Query {
+  meetups(
+    filter: MeetupFilterInput
+    limit: Int = 10
+    offset: Int = 0
+  ): [Meetup!]!
+  user(id: ID!): User!
+}
+#==========================================================
 # Mutation
 type Mutation {
-  createMeetup(input: NewMeetup!): Meetup!
-  updateMeetup(id: ID!, input: UpdateMeetup!): Meetup!
+  register(input: RegisterInput!): AuthResponse!
+  createMeetup(input: NewMeetupInput!): Meetup!
+  updateMeetup(id: ID!, input: UpdateMeetupInput!): Meetup!
   deleteMeetup(id: ID!): Response!
 }
